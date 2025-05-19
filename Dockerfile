@@ -11,7 +11,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy the Streamlit GUI wrapper script into the container
-COPY gui_app.py . # This copies your local gui_app.py
+COPY gui_app.py /app/ # This copies your local gui_app.py
 
 # Install necessary Python packages:
 # - streamlit: For the GUI
