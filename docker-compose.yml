@@ -1,12 +1,12 @@
-version: '3.8' # Specifies the Docker Compose file format version
-
 services:
   autocompose-gui: # Defines a service named 'autocompose-gui'
-    image: ghcr.io/roormonger/autocompose-gui:latest # Specifies the Docker image to use for this service
+    image: ghcr.io/roormonger/autocompose-gui # Specifies the Docker image to use for this service
     container_name: autocompose-gui # Sets the name of the running container instance
     restart: unless-stopped # Configures the container to restart unless explicitly stopped
     ports:
       - "8501:8501" # Maps port 8501 on the host to port 8501 in the container
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock # This allows the application to interact with the Docker daemon
-      - ./my_compose_outputs:/generated_compose_files # Mounts a host directory to store generated compose files
+      - your/bound/path:/generated_compose_files # Mounts a host directory to store generated compose files
+
+      
