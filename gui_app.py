@@ -10,6 +10,7 @@ AUTOCOMPOSE_SCRIPT_PATH = "/app/autocompose.py" # This script is now built into 
 GENERATED_FILES_OUTPUT_DIR = "/generated_compose_files" # Must match volume mount in `docker run` or `docker-compose.yml`
 
 # --- Page Config and Basic Styling ---
+# Updated page title here to remove "(Volume Edition)"
 st.set_page_config(layout="wide", page_title="Docker Autocompose GUI")
 st.markdown("""
 <style>
@@ -130,6 +131,7 @@ full_output_globally = st.sidebar.checkbox(
 )
 
 # --- Main Application ---
+# Updated main title here
 st.title("🚢 Docker Autocompose GUI")
 
 # --- Pre-flight check for autocompose.py ---
@@ -240,4 +242,5 @@ else:
 
 # --- Footer ---
 st.markdown("---")
+# Updated footer caption here
 st.caption(f"Docker Autocompose GUI | Last refresh: {datetime.now().strftime('%Y-%m-%d %H:%M:%S %Z')}")
