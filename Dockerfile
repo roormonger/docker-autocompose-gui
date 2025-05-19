@@ -23,7 +23,9 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# The COPY gui_app.py /app/ line is now REMOVED, as we are downloading it above.
+# Copy autocompose.py from the build context (repository root) into the image
+# Ensure autocompose.py is in the root of your project when you build
+COPY autocompose.py /app/autocompose.py
 
 # Install necessary Python packages
 RUN pip install --no-cache-dir streamlit docker pyaml
@@ -38,9 +40,6 @@ ENV STREAMLIT_SERVER_HEADLESS=true
 ENV STREAMLIT_SERVER_ENABLE_XSRF_PROTECTION=false
 ENV STREAMLIT_SERVER_RUN_ON_SAVE=false
 
-# For documentation: Volume where autocompose.py is expected at runtime
-# (autocompose.py is still expected to be mounted by the user at runtime)
-VOLUME /app
 # For documentation: Volume where generated files will be saved at runtime
 VOLUME /generated_compose_files
 
