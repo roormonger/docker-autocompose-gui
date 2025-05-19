@@ -5,13 +5,15 @@ import docker
 import os # Crucial for path operations and file saving
 from datetime import datetime
 
+# --- SCRIPT VERSION MARKER ---
+SCRIPT_VERSION = "v2.5 - Titles Corrected, Version Marker Added" # <--- NEW MARKER
+
 # --- Configuration ---
 AUTOCOMPOSE_SCRIPT_PATH = "/app/autocompose.py" # This script is now built into the Docker image
 GENERATED_FILES_OUTPUT_DIR = "/generated_compose_files" # Must match volume mount in `docker run` or `docker-compose.yml`
 
 # --- Page Config and Basic Styling ---
-# Updated page title here to remove "(Volume Edition)"
-st.set_page_config(layout="wide", page_title="Docker Autocompose GUI")
+st.set_page_config(layout="wide", page_title="Docker Autocompose GUI") # Corrected
 st.markdown("""
 <style>
     /* ... (keep existing styles or add new ones as desired) ... */
@@ -82,7 +84,6 @@ def save_and_download(content, base_filename, container_name_for_log, log_area=s
         os.makedirs(GENERATED_FILES_OUTPUT_DIR, exist_ok=True)
     except OSError as e:
         log_area.error(f"🔥 Error creating output directory `{GENERATED_FILES_OUTPUT_DIR}`: {e}")
-        # Still offer download if directory creation fails
         log_area.download_button(
             label=f"⚠️ Download {base_filename} (Save to volume failed)",
             data=content,
@@ -129,20 +130,19 @@ st.sidebar.header("Global Autocompose Options")
 full_output_globally = st.sidebar.checkbox(
     "Include default values (`--full`)", value=False, help="Applies `--full` to `autocompose.py`."
 )
+st.sidebar.markdown(f"--- \n*Script Version: {SCRIPT_VERSION}*") # <--- NEW MARKER IN SIDEBAR
 
 # --- Main Application ---
-# Updated main title here
-st.title("🚢 Docker Autocompose GUI")
+st.title("🚢 Docker Autocompose GUI") # Corrected
 
 # --- Pre-flight check for autocompose.py ---
-# This check verifies if autocompose.py was correctly included in the image during build.
 if not os.path.exists(AUTOCOMPOSE_SCRIPT_PATH):
     st.error(
         f"**CRITICAL SETUP ERROR:** The script `autocompose.py` was not found at the expected path `{AUTOCOMPOSE_SCRIPT_PATH}` inside the container. "
         "This script should be included in the Docker image. "
         "If you are seeing this, there might have been an issue during the Docker image build process (e.g., failure to download the script)."
     )
-    st.stop() # Stop further execution if critical script is missing
+    st.stop()
 
 
 st.markdown("Interactively generate `docker-compose.yml` configurations from your running Docker containers. Generated files are saved to a mounted volume.")
@@ -242,6 +242,4 @@ else:
 
 # --- Footer ---
 st.markdown("---")
-# Updated footer caption here
-st.caption(f"Docker Autocompose GUI | Last refresh: {datetime.now().strftime('%Y-%m-%d %H:%M:%S %Z')}")
-)
+st.caption(f"Docker Autocompose GUI | Script Version: {SCRIPT_VERSION} | Last refresh: {datetime.now().strftime('%Y-%m-%d %H:%M:%S %Z')}") # <--- NEW MARKER IN FOOTER
