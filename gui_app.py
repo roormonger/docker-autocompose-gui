@@ -10,7 +10,7 @@ AUTOCOMPOSE_SCRIPT_PATH = "/app/autocompose.py"
 GENERATED_FILES_OUTPUT_DIR = "/generated_compose_files" # Must match volume mount in `docker run`
 
 # --- Page Config and Basic Styling (similar to previous) ---
-st.set_page_config(layout="wide", page_title="Docker Autocompose GUI (Volume Edition)")
+st.set_page_config(layout="wide", page_title="Docker Autocompose GUI")
 st.markdown("""
 <style>
     /* ... (keep existing styles or add new ones as desired) ... */
