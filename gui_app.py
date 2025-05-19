@@ -244,3 +244,4 @@ else:
 st.markdown("---")
 # Updated footer caption here
 st.caption(f"Docker Autocompose GUI | Last refresh: {datetime.now().strftime('%Y-%m-%d %H:%M:%S %Z')}")
+)
