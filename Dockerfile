@@ -33,14 +33,5 @@ ENV STREAMLIT_SERVER_RUN_ON_SAVE=false
 VOLUME /app
 VOLUME /generated_compose_files
 
-# --- Important Note ---
-# The autocompose.py script is NOT bundled in this image.
-# It MUST be provided via a volume mount to /app/autocompose.py when running the container.
-# Example: -v /path/to/your/autocompose.py:/app/autocompose.py
-#
-# Generated compose files will be saved to /generated_compose_files (if configured in gui_app.py)
-# Mount a volume to this path to persist them on your host.
-# Example: -v /path/on/host/for/outputs:/generated_compose_files
-
 # Command to run the Streamlit application
 CMD ["streamlit", "run", "gui_app.py"]
