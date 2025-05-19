@@ -119,8 +119,7 @@ st.sidebar.info(
 st.sidebar.markdown("Original `autocompose.py` script: [Red5d/docker-autocompose](https://github.com/Red5d/docker-autocompose)")
 st.sidebar.markdown("---")
 st.sidebar.subheader("Volume Mounts Required:")
-st.sidebar.markdown(f"1. **`autocompose.py`**: Mount your `autocompose.py` to `{AUTOCOMPOSE_SCRIPT_PATH}` in the container.")
-st.sidebar.markdown(f"2. **Output Files**: Mount a host directory to `{GENERATED_FILES_OUTPUT_DIR}` in the container to persist generated files.")
+st.sidebar.markdown(f"1. **Output Files**: Mount a host directory to `{GENERATED_FILES_OUTPUT_DIR}` in the container to persist generated files.")
 st.sidebar.markdown("---")
 st.sidebar.header("Global Autocompose Options")
 full_output_globally = st.sidebar.checkbox(
