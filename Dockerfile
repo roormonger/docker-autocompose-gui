@@ -4,19 +4,10 @@ FROM python:3.10-slim
 # Set the working directory in the container
 WORKDIR /app
 
-# (Optional: ca-certificates might still be useful if your GUI app needs to make other HTTPS requests)
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends ca-certificates && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-# Copy the Streamlit GUI wrapper script into the container
-COPY gui_app.py /app/gui_app.py # This copies your local gui_app.py
-
 # Install necessary Python packages:
 # - streamlit: For the GUI
 # - docker: Required by autocompose.py to interact with the Docker API
-RUN pip install --no-cache-dir streamlit docker
+RUN pip install --no-cache-dir streamlit docker pyaml
 
 # Expose Streamlit default port
 EXPOSE 8501
