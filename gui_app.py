@@ -127,7 +127,7 @@ full_output_globally = st.sidebar.checkbox(
 )
 
 # --- Main Application ---
-st.title("🚢 Docker Autocompose GUI (Volume Edition)")
+st.title("🚢 Docker Autocompose GUI")
 
 # --- Pre-flight check for autocompose.py ---
 if not os.path.exists(AUTOCOMPOSE_SCRIPT_PATH):
@@ -241,4 +241,4 @@ else:
 
 # --- Footer ---
 st.markdown("---")
-st.caption(f"Docker Autocompose GUI (Volume Edition) | Last refresh: {datetime.now().strftime('%Y-%m-%d %H:%M:%S %Z')}")
+st.caption(f"Docker Autocompose GUI | Last refresh: {datetime.now().strftime('%Y-%m-%d %H:%M:%S %Z')}")
