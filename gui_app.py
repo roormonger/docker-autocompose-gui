@@ -6,10 +6,10 @@ import os # Crucial for path operations and file saving
 from datetime import datetime
 
 # --- Configuration ---
-AUTOCOMPOSE_SCRIPT_PATH = "/app/autocompose.py"
-GENERATED_FILES_OUTPUT_DIR = "/generated_compose_files" # Must match volume mount in `docker run`
+AUTOCOMPOSE_SCRIPT_PATH = "/app/autocompose.py" # This script is now built into the Docker image
+GENERATED_FILES_OUTPUT_DIR = "/generated_compose_files" # Must match volume mount in `docker run` or `docker-compose.yml`
 
-# --- Page Config and Basic Styling (similar to previous) ---
+# --- Page Config and Basic Styling ---
 st.set_page_config(layout="wide", page_title="Docker Autocompose GUI")
 st.markdown("""
 <style>
@@ -24,10 +24,11 @@ st.markdown("""
 
 # --- Helper function to run autocompose ---
 def run_autocompose(container_ids, full_output_flag, log_area=st):
+    # Check if autocompose.py (which should be in the image) exists
     if not os.path.exists(AUTOCOMPOSE_SCRIPT_PATH):
         log_area.error(
-            f"**CRITICAL ERROR:** `autocompose.py` not found at `{AUTOCOMPOSE_SCRIPT_PATH}`. "
-            "Please ensure it's correctly mounted via a volume."
+            f"**CRITICAL ERROR:** The script `autocompose.py` was not found at `{AUTOCOMPOSE_SCRIPT_PATH}` inside the container. "
+            "This indicates an issue with the Docker image build, as this script should be included."
         )
         return None, f"`autocompose.py` not found at {AUTOCOMPOSE_SCRIPT_PATH}", -2, ""
 
@@ -116,10 +117,12 @@ st.sidebar.info(
     "Select running containers to generate `docker-compose.yml` files. "
     "Files will be saved to a mounted volume and offered for download."
 )
-st.sidebar.markdown("Original `autocompose.py` script: [Red5d/docker-autocompose](https://github.com/Red5d/docker-autocompose)")
+st.sidebar.markdown("`autocompose.py` (core script) is included in this Docker image.")
+st.sidebar.markdown("Original script source: [Red5d/docker-autocompose](https://github.com/Red5d/docker-autocompose)")
 st.sidebar.markdown("---")
 st.sidebar.subheader("Volume Mounts Required:")
 st.sidebar.markdown(f"1. **Output Files**: Mount a host directory to `{GENERATED_FILES_OUTPUT_DIR}` in the container to persist generated files.")
+st.sidebar.markdown(f"2. **Docker Socket**: The Docker socket (`/var/run/docker.sock`) must be mounted to allow inspection of other containers.")
 st.sidebar.markdown("---")
 st.sidebar.header("Global Autocompose Options")
 full_output_globally = st.sidebar.checkbox(
@@ -130,35 +133,31 @@ full_output_globally = st.sidebar.checkbox(
 st.title("🚢 Docker Autocompose GUI")
 
 # --- Pre-flight check for autocompose.py ---
+# This check verifies if autocompose.py was correctly included in the image during build.
 if not os.path.exists(AUTOCOMPOSE_SCRIPT_PATH):
     st.error(
         f"**CRITICAL SETUP ERROR:** The script `autocompose.py` was not found at the expected path `{AUTOCOMPOSE_SCRIPT_PATH}` inside the container. "
-        "Please ensure you have downloaded `autocompose.py` from its official repository and are correctly mounting it as a volume when running this Docker container. "
-        "The application will not be able to generate compose files without it."
+        "This script should be included in the Docker image. "
+        "If you are seeing this, there might have been an issue during the Docker image build process (e.g., failure to download the script)."
     )
-    st.code(f"Example mount: -v /path/on/your/host/autocompose.py:{AUTOCOMPOSE_SCRIPT_PATH}", language="bash")
     st.stop() # Stop further execution if critical script is missing
 
 
 st.markdown("Interactively generate `docker-compose.yml` configurations from your running Docker containers. Generated files are saved to a mounted volume.")
 
-# (The rest of the UI for listing containers and generation logic is largely the same,
-# but calls `save_and_download` after getting output from `run_autocompose`)
-
-# --- Section 1: List and Select Containers (Same as before) ---
+# --- Section 1: List and Select Containers ---
 st.header("1. Select Running Containers")
 try:
     docker_client = docker.from_env()
     running_containers = docker_client.containers.list(all=False)
 except docker.errors.DockerException as e:
     st.error(f"🚨 Could not connect to Docker daemon: {e}")
-    st.caption("Ensure Docker is running and the Docker socket (`/var/run/docker.sock`) is correctly mounted.")
+    st.caption("Ensure Docker is running and the Docker socket (`/var/run/docker.sock`) is correctly mounted into this container.")
     running_containers = []
 
 if not running_containers:
     st.warning("No running containers found, or the Docker daemon is inaccessible.")
 else:
-    # (Checkbox logic for selecting containers - same as previous version)
     st.write("Choose the containers you want to include:")
     num_cols = st.slider("Number of columns for container list:", 1, 5, 3, key="cols_slider")
     cols = st.columns(num_cols)
