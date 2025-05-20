@@ -5,9 +5,6 @@ https://github.com/Red5d/docker-autocompose
 
 I liked the script but I am sucker for a GUI. 99.9% of this was made by Gemini (2.5 Pro). I have no idea what I am doing lol. It works well for what it is though.
 
-
-This tool allows you to interactively select running Docker containers and generate `docker-compose.yml` files for them. You can export a single file or select multiple containers and have the option to generate a compose file as a stack or generate individual files for each one.
-
 ## Features
 
 * Lists running Docker containers for easy selection.
