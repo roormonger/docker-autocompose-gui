@@ -5,9 +5,6 @@ import docker
 import os # Crucial for path operations and file saving
 from datetime import datetime
 
-# --- SCRIPT VERSION MARKER ---
-SCRIPT_VERSION = "v2.5 - Titles Corrected, Version Marker Added" # <--- NEW MARKER
-
 # --- Configuration ---
 AUTOCOMPOSE_SCRIPT_PATH = "/app/autocompose.py" # This script is now built into the Docker image
 GENERATED_FILES_OUTPUT_DIR = "/generated_compose_files" # Must match volume mount in `docker run` or `docker-compose.yml`
@@ -119,8 +116,8 @@ st.sidebar.info(
     "Select running containers to generate `docker-compose.yml` files. "
     "Files will be saved to a mounted volume and offered for download."
 )
-st.sidebar.markdown("`autocompose.py` (core script) is included in this Docker image.")
-st.sidebar.markdown("Original script source: [Red5d/docker-autocompose](https://github.com/Red5d/docker-autocompose)")
+st.sidebar.markdown("All credit goes to Red5d for the docker-autocompose script.")
+st.sidebar.markdown("[Red5d/docker-autocompose](https://github.com/Red5d/docker-autocompose)")
 st.sidebar.markdown("---")
 st.sidebar.subheader("Volume Mounts Required:")
 st.sidebar.markdown(f"1. **Output Files**: Mount a host directory to `{GENERATED_FILES_OUTPUT_DIR}` in the container to persist generated files.")
@@ -130,10 +127,9 @@ st.sidebar.header("Global Autocompose Options")
 full_output_globally = st.sidebar.checkbox(
     "Include default values (`--full`)", value=False, help="Applies `--full` to `autocompose.py`."
 )
-st.sidebar.markdown(f"--- \n*Script Version: {SCRIPT_VERSION}*") # <--- NEW MARKER IN SIDEBAR
 
 # --- Main Application ---
-st.title("🚢 Docker Autocompose GUI") # Corrected
+st.title("🚢 Docker-Autocompose GUI") # Corrected
 
 # --- Pre-flight check for autocompose.py ---
 if not os.path.exists(AUTOCOMPOSE_SCRIPT_PATH):
@@ -242,4 +238,4 @@ else:
 
 # --- Footer ---
 st.markdown("---")
-st.caption(f"Docker Autocompose GUI | Script Version: {SCRIPT_VERSION} | Last refresh: {datetime.now().strftime('%Y-%m-%d %H:%M:%S %Z')}") # <--- NEW MARKER IN FOOTER
+st.caption(f"Docker Autocompose GUI | Last refresh: {datetime.now().strftime('%Y-%m-%d %H:%M:%S %Z')}") # <--- NEW MARKER IN FOOTER
