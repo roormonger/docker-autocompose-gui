@@ -10,7 +10,7 @@ AUTOCOMPOSE_SCRIPT_PATH = "/app/autocompose.py" # This script is now built into 
 GENERATED_FILES_OUTPUT_DIR = "/generated_compose_files" # Must match volume mount in `docker run` or `docker-compose.yml`
 
 # --- Page Config and Basic Styling ---
-st.set_page_config(layout="wide", page_title="Docker Autocompose GUI") # Corrected
+st.set_page_config(layout="wide", page_title="Docker Autocompose GUI")
 st.markdown("""
 <style>
     /* ... (keep existing styles or add new ones as desired) ... */
@@ -106,18 +106,21 @@ def save_and_download(content, base_filename, container_name_for_log, log_area=s
         key=f"{download_key_prefix}_{base_filename}"
     )
 
-# --- Initialize session state (as before) ---
+# --- Initialize session state ---
 if 'selected_container_info' not in st.session_state:
     st.session_state.selected_container_info = {}
+if 'select_all_clicked' not in st.session_state: # To handle "Select All" state
+    st.session_state.select_all_clicked = False
 
-# --- Sidebar (Updated instructions) ---
+
+# --- Sidebar ---
 st.sidebar.title("About & Options")
 st.sidebar.info(
     "Select running containers to generate `docker-compose.yml` files. "
     "Files will be saved to a mounted volume and offered for download."
 )
-st.sidebar.markdown("All credit goes to Red5d for the docker-autocompose script.")
-st.sidebar.markdown("[Red5d/docker-autocompose](https://github.com/Red5d/docker-autocompose)")
+st.sidebar.markdown("All credit goes to Red5d for the docker-autocompose script.") # User's text
+st.sidebar.markdown("[Red5d/docker-autocompose](https://github.com/Red5d/docker-autocompose)") # User's text
 st.sidebar.markdown("---")
 st.sidebar.subheader("Volume Mounts Required:")
 st.sidebar.markdown(f"1. **Output Files**: Mount a host directory to `{GENERATED_FILES_OUTPUT_DIR}` in the container to persist generated files.")
@@ -126,10 +129,10 @@ st.sidebar.markdown("---")
 st.sidebar.header("Global Autocompose Options")
 full_output_globally = st.sidebar.checkbox(
     "Include default values (`--full`)", value=False, help="Applies `--full` to `autocompose.py`."
-)
+) 
 
 # --- Main Application ---
-st.title("🚢 Docker-Autocompose GUI") # Corrected
+st.title("🚢 Docker-Autocompose GUI") # User's title with hyphen
 
 # --- Pre-flight check for autocompose.py ---
 if not os.path.exists(AUTOCOMPOSE_SCRIPT_PATH):
@@ -157,23 +160,58 @@ if not running_containers:
     st.warning("No running containers found, or the Docker daemon is inaccessible.")
 else:
     st.write("Choose the containers you want to include:")
+
+    # --- Select All / Deselect All Buttons ---
+    col1, col2, col_spacer = st.columns([1,1,3]) # Adjust column ratios as needed
+    with col1:
+        if st.button("✨ Select All", key="select_all_btn"):
+            st.session_state.selected_container_info = {
+                container.id: (container.name or container.attrs.get('Config', {}).get('Hostname', 'Unknown'))
+                for container in running_containers
+            }
+            st.session_state.select_all_clicked = True # Flag that select all was clicked
+            st.experimental_rerun() # Rerun to update checkboxes immediately
+
+    with col2:
+        if st.button("🧹 Deselect All", key="deselect_all_btn"):
+            st.session_state.selected_container_info = {}
+            st.session_state.select_all_clicked = False # Reset flag
+            st.experimental_rerun() # Rerun to update checkboxes immediately
+    
+    st.markdown("---") # Visual separator
+
     num_cols = st.slider("Number of columns for container list:", 1, 5, 3, key="cols_slider")
     cols = st.columns(num_cols)
-    current_selections = {}
+    
+    current_selections_this_run = {} # Temp dict to hold this run's selections {id: name}
+
     for i, container in enumerate(running_containers):
         container_name = container.name or container.attrs.get('Config', {}).get('Hostname', 'Unknown')
         display_label = f"{container_name} ({container.short_id})"
-        is_selected = cols[i % num_cols].checkbox(
+        
+        is_selected_in_state = container.id in st.session_state.selected_container_info
+        current_checkbox_value = True if st.session_state.select_all_clicked else is_selected_in_state
+
+        selected_by_user = cols[i % num_cols].checkbox(
             display_label,
-            value=(container.id in st.session_state.selected_container_info),
+            value=current_checkbox_value,
             key=f"cb_{container.id}"
         )
-        if is_selected:
-            current_selections[container.id] = container_name
-    st.session_state.selected_container_info = current_selections
+
+        if selected_by_user:
+            current_selections_this_run[container.id] = container_name
+            
+    if not st.session_state.select_all_clicked :
+         st.session_state.selected_container_info = current_selections_this_run
+    
+    if st.session_state.select_all_clicked:
+        st.session_state.select_all_clicked = False
+
+
     num_selected = len(st.session_state.selected_container_info)
     selected_ids = list(st.session_state.selected_container_info.keys())
     selected_names = list(st.session_state.selected_container_info.values())
+
 
     if num_selected > 0:
         st.success(f"**{num_selected} container(s) selected:** {', '.join(selected_names)}")
@@ -238,4 +276,4 @@ else:
 
 # --- Footer ---
 st.markdown("---")
-st.caption(f"Docker Autocompose GUI | Last refresh: {datetime.now().strftime('%Y-%m-%d %H:%M:%S %Z')}") # <--- NEW MARKER IN FOOTER
+st.caption(f"Docker-Autocompose GUI | Last refresh: {datetime.now().strftime('%Y-%m-%d %H:%M:%S %Z')}")
