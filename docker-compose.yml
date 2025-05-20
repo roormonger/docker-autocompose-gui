@@ -1,6 +1,6 @@
 services:
   autocompose-gui: # Defines a service named 'autocompose-gui'
-    image: ghcr.io/roormonger/autocompose-gui:latest # Specifies the Docker image to use for this service
+    image: roormonger/autocompose-gui:latest # Specifies the Docker image to use for this service
     container_name: autocompose-gui # Sets the name of the running container instance
     restart: unless-stopped # Configures the container to restart unless explicitly stopped
     ports:
