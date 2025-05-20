@@ -7,5 +7,5 @@ services:
       - "8501:8501" # Maps port 8501 on the host to port 8501 in the container
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock # This allows the application to interact with the Docker daemon
-      - ./my_compose_outputs:/generated_compose_files # Mounts a host directory to store generated compose files
+      - bind/me/somewhere:/generated_compose_files # Mounts a host directory to store generated compose files
 
