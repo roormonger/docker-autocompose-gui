@@ -12,13 +12,13 @@ ENV FLASK_ENV production
 # You should set FLASK_SECRET_KEY as an environment variable at runtime for security
 # For GITHUB_TOKEN, it's STRONGLY recommended to provide this at runtime for security.
 # Do NOT hardcode your actual token here in a committed Dockerfile.
-ENV FLASK_SECRET_KEY=""
-ENV GITHUB_TOKEN="" 
-ENV GITHUB_TARGET_REPO="" 
-ENV GITHUB_UPLOAD_PATH="" 
-ENV GITHUB_UPLOAD_BRANCH=""
+# ENV FLASK_SECRET_KEY=""
+# ENV GITHUB_TOKEN="" 
+# ENV GITHUB_TARGET_REPO="" 
+# ENV GITHUB_UPLOAD_PATH="" 
+# ENV GITHUB_UPLOAD_BRANCH=""
 # If GITHUB_UPLOAD_COMMIT_MSG is empty, the app.py script will use a dynamic default.
-ENV GITHUB_UPLOAD_COMMIT_MSG=""
+# ENV GITHUB_UPLOAD_COMMIT_MSG=""
 # This ENV VAR is used by autocompose.py to identify itself for sensitive var filtering
 ENV AUTOCONPOSE_GUI_SERVICE_NAME="autocompose-gui" 
 
