@@ -19,9 +19,6 @@ app.secret_key = os.getenv('FLASK_SECRET_KEY', secrets.token_hex(16))
 logging.basicConfig(level=logging.INFO)
 logger = app.logger
 
-# --- SCRIPT VERSION MARKER ---
-SCRIPT_VERSION = "v10.2 - Simplified flash message for generation"
-
 # --- Configuration ---
 AUTOCOMPOSE_SCRIPT_PATH = "./autocompose.py" 
 GENERATED_FILES_BASE_OUTPUT_DIR = os.path.abspath(os.getenv('OUTPUT_DIR', "/generated_compose_files")) 
@@ -426,7 +423,7 @@ def index():
         "selected_containers": session.get('selected_containers', {}),
         "error_message": error_message, "docker_connected": docker_connected,
         "current_sort_by": current_sort_by, "current_sort_order": current_sort_order,
-        "num_cols": session.get('num_cols', 3), "SCRIPT_VERSION": SCRIPT_VERSION, 
+        "num_cols": session.get('num_cols', 3), 
         "GENERATED_FILES_OUTPUT_DIR": GENERATED_FILES_BASE_OUTPUT_DIR, 
         "TEMP_COMPOSE_DIR": TEMP_COMPOSE_DIR,
         "ENABLE_GITHUB_UPLOAD": ENABLE_GITHUB_UPLOAD, 
