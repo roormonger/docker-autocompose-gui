@@ -1,55 +1,51 @@
 # Use an official Python runtime as a parent image
 FROM python:3.10-slim
 
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+ENV FLASK_APP app.py
+# Set FLASK_ENV to 'production' for gunicorn, or 'development' for flask run
+ENV FLASK_ENV production
+# Application-specific environment variables
+# These can be overridden at runtime (e.g., docker run -e VAR_NAME=new_value)
+# You should set FLASK_SECRET_KEY as an environment variable at runtime for security
+# For GITHUB_TOKEN, it's STRONGLY recommended to provide this at runtime for security.
+# Do NOT hardcode your actual token here in a committed Dockerfile.
+ENV FLASK_SECRET_KEY=""
+ENV GITHUB_TOKEN="" 
+ENV GITHUB_TARGET_REPO="" 
+ENV GITHUB_UPLOAD_PATH="" 
+ENV GITHUB_UPLOAD_BRANCH=""
+# If GITHUB_UPLOAD_COMMIT_MSG is empty, the app.py script will use a dynamic default.
+ENV GITHUB_UPLOAD_COMMIT_MSG=""
+# This ENV VAR is used by autocompose.py to identify itself for sensitive var filtering
+ENV AUTOCONPOSE_GUI_SERVICE_NAME="autocompose-gui" 
+
+
 # Set the working directory in the container
 WORKDIR /app
 
-# Install essential packages, download gui_app.py and autocompose.py from GitHub, and cleanup
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends wget ca-certificates && \
-    \
-    echo "Downloading gui_app.py from roormonger/autocompose-gui repository (main branch)..." && \
-    # Download gui_app.py from your repository
-    wget -O /app/gui_app.py https://raw.githubusercontent.com/roormonger/autocompose-gui/main/gui_app.py && \
-    if [ ! -s /app/gui_app.py ]; then \
-        echo "ERROR: gui_app.py downloaded from GitHub is empty or download failed!" >&2; \
-        exit 1; \
-    fi && \
-    echo "gui_app.py downloaded successfully." && \
-    \
-    echo "Downloading autocompose.py from roormonger/autocompose-gui repository (main branch)..." && \
-    # Download autocompose.py from your roormonger/autocompose-gui repository
-    # Ensure autocompose.py exists in the root of the 'main' branch of this repository.
-    wget -O /app/autocompose.py https://raw.githubusercontent.com/roormonger/autocompose-gui/main/autocompose.py && \
-    if [ ! -s /app/autocompose.py ]; then \
-        echo "ERROR: autocompose.py downloaded from GitHub is empty or download failed!" >&2; \
-        exit 1; \
-    fi && \
-    echo "autocompose.py downloaded successfully." && \
-    \
-    # Clean up wget after use to keep the image smaller
-    apt-get purge -y --auto-remove wget && \
-    apt-get autoremove -y && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+# Install system dependencies (if any, e.g., for certain Python packages)
+# RUN apt-get update && apt-get install -y --no-install-recommends some-package && rm -rf /var/lib/apt/lists/*
 
-# The COPY autocompose.py /app/autocompose.py line is now REMOVED, as it's downloaded above.
+# Copy the requirements file into the container
+COPY requirements.txt .
 
-# Install necessary Python packages
-RUN pip install --no-cache-dir streamlit docker pyaml
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Expose Streamlit default port
-EXPOSE 8501
+# Copy the application code into the container
+# Ensure autocompose.py is in the same directory as this Dockerfile or adjust path
+COPY . . 
+# If autocompose.py is not meant to be part of the repo, 
+# you'd download it here or mount it as a volume at runtime.
+# For now, assuming it's copied with "COPY . ."
 
-# Define environment variables for Streamlit
-ENV STREAMLIT_SERVER_PORT=8501
-ENV STREAMLIT_SERVER_ADDRESS=0.0.0.0
-ENV STREAMLIT_SERVER_HEADLESS=true
-ENV STREAMLIT_SERVER_ENABLE_XSRF_PROTECTION=false
-ENV STREAMLIT_SERVER_RUN_ON_SAVE=false
+# Make port 5000 available to the world outside this container (Flask's default, Gunicorn will also use this)
+EXPOSE 5000
 
-# For documentation: Volume where generated files will be saved at runtime
-VOLUME /generated_compose_files
-
-# Command to run the Streamlit application
-CMD ["streamlit", "run", "gui_app.py"]
+# Define the command to run the application
+# For development: CMD ["flask", "run", "--host=0.0.0.0"]
+# For production (using Gunicorn):
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]

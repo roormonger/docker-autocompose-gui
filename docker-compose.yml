@@ -1,11 +1,20 @@
 services:
-  autocompose-gui: # Defines a service named 'autocompose-gui'
-    image: roormonger/autocompose-gui:latest # Specifies the Docker image to use for this service
-    container_name: autocompose-gui # Sets the name of the running container instance
-    restart: unless-stopped # Configures the container to restart unless explicitly stopped
+  autocompose-gui:
+    image: autocompose-gui:beta
+    container_name: autocompose-gui
+    restart: unless-stopped
+    environment:
+      - GITHUB_TOKEN=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
+      - GITHUB_TARGET_REPO=roormonger/compose
+      - GITHUB_UPLOAD_PATH=
+      - GITHUB_UPLOAD_BRANCH=main
+      - GITHUB_UPLOAD_COMMIT_MSG=
+      - ENABLE_GITHUB_UPLOAD=true
+      - FLASK_SECRET_KEY=lkanscvunwsoefnp343n
+    labels:
+      - AUTOCOMPOSE_EXCLUDE=GITHUB_TOKEN,FLASK_SECRET_KEY
     ports:
-      - "8501:8501" # Maps port 8501 on the host to port 8501 in the container
+      - "8501:5000"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock # This allows the application to interact with the Docker daemon
-      - bind/me/somewhere:/generated_compose_files # Mounts a host directory to store generated compose files
-
+      - /var/run/docker.sock:/var/run/docker.sock
+      - C:\auto:/generated_compose_files

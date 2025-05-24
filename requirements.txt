@@ -1,0 +1,6 @@
+Flask>=2.0
+docker>=5.0
+PyGithub>=1.55
+python-dotenv>=0.19 # For local development to load .env files
+gunicorn>=20.0 # For production deployment (optional for local dev)
+PyYAML>=5.0 # Added for autocompose.py

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker Autocompose GUI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class=""> 
+    <div class="app-header">
+        <h1>🚢 Docker Autocompose GUI</h1>
+        <div>
+            <button id="job-history-btn">📜 Job History</button> 
+            <button id="theme-toggle-btn">🌓 Toggle Theme</button>
+        </div>
+    </div>
+    <div class="container">
+        <aside class="sidebar">
+            <h2>About</h2>
+            <p>Generate <code>docker-compose.yml</code> files from your running containers.</p>
+            <p>Thank Red5d for <code>docker-autocompose.py</code></p>
+            <a href="https://github.com/Red5d/docker-autocompose" target="_blank" rel="noopener noreferrer">Red5d/docker-autocompose</a>
+            <hr>
+            
+            <h3>⚙️ Generation</h3>
+            <h3 id="selected-count-display" style="margin-top: 0.5em; margin-bottom: 0.3rem; font-size: 0.9em; font-weight: normal; color: var(--text-color);">Selected Containers: ({{ selected_containers|length if selected_containers else 0 }})</h3>
+            <p style="margin-bottom: 0.3rem;">Select containers in the main list first.</p>
+            <form method="POST" action="{{ url_for('index') }}" id="generateActionsForm"> 
+                <button type="submit" id="generate-stack-btn" name="generate_action" value="generate_stack" class="sidebar-action-button" {% if not selected_containers %}disabled{% endif %}>⚙️ Generate Stack</button> 
+                <button type="submit" id="generate-individuals-btn" name="generate_action" value="generate_individuals" class="sidebar-action-button" {% if not selected_containers %}disabled{% endif %}>⚙️ Generate Individuals</button>
+                <button type="submit" name="generate_action" value="clear_generated" class="sidebar-action-button" style="margin-top:10px; background-color: #dc3545;" {% if not current_batch_files %}disabled{% endif %}>🗑️ Clear Generated Files</button>
+            </form>
+
+            <hr>
+            <h3>🚀 Actions for Current Batch <span class="batch-name-display">({{ current_batch_files[0].subdir_name if current_batch_files else 'No Batch Generated' }})</span></h3>
+            <form method="POST" action="{{ url_for('index') }}" id="batchActionsForm">
+                <button type="submit" name="batch_action" value="save_all_local" class="sidebar-action-button" {% if not current_batch_files %}disabled{% endif %}>💾 Save to Local Volume</button>
+                
+                {% if ENABLE_GITHUB_UPLOAD and GITHUB_TOKEN_FROM_ENV_SET and GITHUB_TARGET_REPO_ENV %}
+                    <button type="submit" name="batch_action" value="upload_all_github" class="sidebar-action-button" {% if not current_batch_files %}disabled{% endif %}>☁️ Upload to GitHub</button>
+                {% elif ENABLE_GITHUB_UPLOAD %}
+                     <p class="warning-text" style="margin-top:10px;"><em>(GitHub upload needs GITHUB_TOKEN & GITHUB_TARGET_REPO ENV VARS to be set.)</em></p>
+                {% endif %}
+                <button type="submit" name="batch_action" value="download_all_zip" class="sidebar-action-button" style="background-color: #28a745;" {% if not current_batch_files %}disabled{% endif %}>📦 Download as ZIP</button> 
+            </form>
+            <hr>
+        </aside>
+
+        <main class="main-content">
+            <div id="flash-message-container">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+
+            {% if error_message %}
+                <p class="error-text">{{ error_message }}</p>
+            {% endif %}
+
+            <!-- Rest of your main content -->
+            <h2>Select Running Containers</h2>
+            {% if docker_connected %}
+                {% if containers %}
+                    <form method="POST" action="{{ url_for('index') }}" id="mainControlsForm">
+                        <div class="controls-bar">
+                            <button type="submit" name="select_action" value="select_all">✨ Select All</button>
+                            <button type="submit" name="select_action" value="deselect_all">🧹 Deselect All</button>
+                            
+                            <div class="sort-options"> 
+                                <label for="sort_by_select">Sort by:</label>
+                                <select name="sort_by_select" id="sort_by_select" onchange="this.form.submit()">
+                                    <option value="name" {% if current_sort_by == 'name' %}selected{% endif %}>Name</option>
+                                    <option value="image" {% if current_sort_by == 'image' %}selected{% endif %}>Image</option>
+                                    <option value="created" {% if current_sort_by == 'created' %}selected{% endif %}>Created Date</option>
+                                </select>
+                                <label for="sort_order_asc">
+                                    <input type="radio" id="sort_order_asc" name="sort_order_radio" value="asc" {% if current_sort_order == 'asc' %}checked{% endif %} onchange="this.form.submit()"> Asc
+                                </label>
+                                <label for="sort_order_desc">
+                                    <input type="radio" id="sort_order_desc" name="sort_order_radio" value="desc" {% if current_sort_order == 'desc' %}checked{% endif %} onchange="this.form.submit()"> Desc
+                                </label>
+                                <label for="num_cols_slider">Columns:</label>
+                                 <input type="range" id="num_cols_slider" name="num_cols_slider" min="1" max="5" value="{{ num_cols }}" onchange="this.form.submit()">
+                                 <span>{{ num_cols }}</span>
+                            </div>
+                        </div>
+                    </form>
+                    <hr>
+
+                    <div class="container-list" style="--grid-columns: {{ num_cols }};">
+                        {% for container in containers %}
+                        <div class="container-card {% if container.id in selected_containers %}selected{% endif %}"
+                             data-container-id="{{ container.id }}"
+                             data-container-name="{{ container.name }}"
+                             title="Click to select/deselect {{ container.name }}"
+                             role="button" tabindex="0"> 
+                            <div class="container-card-header">
+                                <span class="icon">{% if container.id in session.get('selected_containers', {}) %}✅{% else %}🔲{% endif %}</span>
+                                <strong>{{ container.name }}</strong>
+                            </div>
+                            <div class="container-card-info-grid">
+                                <div class="info-row">
+                                    <span class="info-left"><span class="info-label">Image:</span> {{ container.image }}</span>
+                                    <span class="info-right"><span class="info-label">ID:</span> {{ container.short_id }}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-left"><span class="info-label">Ports:</span> {{ container.ports }}</span>
+                                    <span class="info-right"><span class="info-label">Created:</span> {{ container.created }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <hr>
+                {% else %}
+                    <p class="info-text">No running containers found to display.</p>
+                {% endif %}
+
+                <div id="generated-output-display">
+                    {% if generated_files %}
+                        <h4>Generated Files:</h4>
+                        {% for file_info in generated_files %}
+                            <div class="generated-file-item">
+                                <h4>{{ file_info.filename }}</h4>
+                                <details class="compose-output-details">
+                                    <summary>View/Hide</summary>
+                                    <a href="{{ url_for('download_temp_file', subdir=file_info.subdir_name, filename=file_info.filename) }}" class="download-button" target="_blank">📥 Download {{ file_info.filename }}</a>
+                                    <pre><code>{{ file_info.content }}</code></pre>
+                                </details>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            {% elif not error_message %}
+                <p class="info-text">Attempting to connect to Docker...</p>
+            {% endif %}
+            
+        </main>
+    </div>
+
+    <div id="job-history-modal" class="modal"> 
+        <div class="modal-content">
+            <span class="close-btn" id="job-history-modal-close-btn">&times;</span> 
+            <h2>📜 Job History</h2>
+            <hr>
+            {% if job_history and job_history|length > 0 %}
+                <ul class="job-history-list">
+                {% for job in job_history %}
+                    <li class="job-history-item job-{{ job.category }}">
+                        <strong>{{ job.timestamp }} - {{ job.operation }} for {{ job.filename if job.filename else 'N/A' }}</strong><br>
+                        {{ job.message|safe }} 
+                    </li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <p class="info-text">No job history yet for this session.</p>
+            {% endif %}
+            <br>
+            <form method="POST" action="{{ url_for('index') }}">
+                <input type="hidden" name="clear_job_history_action" value="true">
+                <button type="submit" class="clear-history-btn">Clear History</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
