@@ -9,6 +9,7 @@ https://hub.docker.com/r/roormonger/autocompose-gui
 
 ## Features
 
+* Lists running containers to generate docker-compose files based off of their current configuration
 * Uses Flask for the UI
 * Lists running Docker containers for easy selection.
 * Generates `docker-compose.yml` for single or multiple containers.
