@@ -5,6 +5,8 @@ https://github.com/Red5d/docker-autocompose
 
 I found Red5d's docker-autocompose script very helpful to create docker-compose.yml files for my running containers. It's nice to have backups in case something bad happens. I am a sucker for a GUI though, so I put my free month of Gemini Pro to work lol. All compose files are saved in a timestamped folder. I chose this to avoid any conflicts with existing files.
 
+https://hub.docker.com/r/roormonger/autocompose-gui
+
 ## Features
 
 * Uses Flask for the UI
