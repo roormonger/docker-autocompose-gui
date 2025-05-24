@@ -115,6 +115,7 @@ body {
 
 .container {
     display: flex;
+    width: 100%;
     max-width: 1400px;
     margin: 20px auto;
     background-color: var(--container-bg);
@@ -196,6 +197,8 @@ body.dark-mode .sidebar-action-button:disabled {
 .main-content {
     flex-grow: 1;
     padding: 20px;
+    width: 100%;
+    overflow-x: hidden;
 }
 
 .main-content h2 {
@@ -299,8 +302,23 @@ body.dark-mode .alert-danger { color: #f8d7da; background-color: #721c24; border
 
 .container-list {
     display: grid;
-    grid-template-columns: repeat(var(--grid-columns, 3), 1fr);
+    grid-template-columns: repeat(var(--grid-columns, 3), minmax(0, 1fr));
     gap: 15px; 
+    width: 100%;
+}
+
+.container-item {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.container-item button,
+.container-item a {
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .container-card {

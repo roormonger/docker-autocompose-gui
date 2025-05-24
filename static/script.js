@@ -264,4 +264,42 @@ document.addEventListener('DOMContentLoaded', () => {
         // Implement this function to return the current list of files to be saved/uploaded
         // This might involve getting the data from your current UI state
     }
+
+    // Add this function to handle the column slider change
+    function updateGridColumns(value) {
+        document.documentElement.style.setProperty('--grid-columns', value);
+        // Update the display of the current value
+        const columnDisplay = document.getElementById('num_cols_display');
+        if (columnDisplay) {
+            columnDisplay.textContent = value;
+        }
+
+        // Send AJAX request to update server
+        fetch('/update_columns', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ num_cols: value })
+        }).then(response => response.json())
+          .then(data => {
+              if (data.success) {
+                  console.log('Column update response:', data.message);
+              } else {
+                  console.error('Error updating columns:', data.message);
+              }
+          })
+          .catch(error => console.error('Error updating columns:', error));
+    }
+
+    // Add an event listener for the column slider
+    const columnSlider = document.getElementById('num_cols_slider');
+    if (columnSlider) {
+        columnSlider.addEventListener('input', function() {
+            updateGridColumns(this.value);
+        });
+
+        // Initialize the grid with the current slider value
+        updateGridColumns(columnSlider.value);
+    }
 });

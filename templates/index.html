@@ -84,8 +84,8 @@
                                     <input type="radio" id="sort_order_desc" name="sort_order_radio" value="desc" {% if current_sort_order == 'desc' %}checked{% endif %} onchange="this.form.submit()"> Desc
                                 </label>
                                 <label for="num_cols_slider">Columns:</label>
-                                 <input type="range" id="num_cols_slider" name="num_cols_slider" min="1" max="5" value="{{ num_cols }}" onchange="this.form.submit()">
-                                 <span>{{ num_cols }}</span>
+                                <input type="range" id="num_cols_slider" name="num_cols_slider" min="1" max="5" value="{{ num_cols }}" onchange="this.form.submit()">
+                                <span id="num_cols_display">{{ num_cols }}</span>
                             </div>
                         </div>
                     </form>
