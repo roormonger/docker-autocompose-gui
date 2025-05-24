@@ -30,8 +30,7 @@ https://hub.docker.com/r/roormonger/autocompose-gui
 
 Make sure you have a folder bound for the compose files.
 
-    ```yaml
-    
+```yaml
 services:
   autocompose-gui:
     image: roormonger/autocompose-gui:latest
@@ -52,5 +51,4 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock #Required
       - path/on/host:/generated_compose_files #Optional - You only need this if you plan on saving locally
-
-    ```
+```
