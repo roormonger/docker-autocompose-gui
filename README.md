@@ -13,8 +13,8 @@ I liked the script but I am sucker for a GUI. 99.9% of this was made by Gemini (
 * Saves generated compose files to a user-specified volume on the host.
 * Provides direct download links for generated files.
 
-![alt text](https://github.com/roormonger/autocompose-gui/blob/main/1.png?raw=true)
-![alt text](https://github.com/roormonger/autocompose-gui/blob/main/2.png?raw=true)
+![alt text](https://github.com/roormonger/autocompose-gui/images/blob/main/1.png?raw=true)
+![alt text](https://github.com/roormonger/autocompose-gui/images/blob/main/2.png?raw=true)
 
 ## You know what to do
 
