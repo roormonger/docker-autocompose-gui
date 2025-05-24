@@ -17,4 +17,4 @@ services:
       - "8501:5000"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock #Required
-      - C:\auto:/generated_compose_files #Optional - You dont really need this if you plan on using on the Github feature or just downloading as a zip
+      - C:\auto:/generated_compose_files #Optional - You dont really need this if you plan on using the Github, zip, or output from gui
